@@ -1,6 +1,6 @@
 local popup = require('plenary.popup')
 
-local CMD = {}
+local M = {}
 
 local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
 vim.api.nvim_set_hl(0, "FocusedCmdNormal", normal_hl)
@@ -67,4 +67,4 @@ function CMD.open_cmd_window(arg)
     end, { buffer = buf })
 end
 
-return CMD
+return M
