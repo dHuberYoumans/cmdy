@@ -8,7 +8,7 @@ vim.api.nvim_set_hl(0, "FocusedCmdNormal", normal_hl)
 local border_hl = vim.api.nvim_get_hl(0, { name = "FloatBorder" })
 vim.api.nvim_set_hl(0, "FocusedCmdBorder", border_hl)
 
-function CMD.open_cmd_window(arg)
+function M.open_cmd_window(arg)
     local og_win_id = vim.api.nvim_get_current_win()
     local buf = vim.api.nvim_create_buf(false,false)
     vim.api.nvim_buf_set_option(buf, "filetype", "focused_cmd")
