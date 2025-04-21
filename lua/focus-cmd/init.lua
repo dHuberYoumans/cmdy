@@ -30,11 +30,11 @@ function M.open_cmd_window(arg)
         end)
     elseif arg == "::" then
         vim.fn.prompt_setcallback(buf, function(input)
+            vim.api.nvim_win_close(0, true)
+            vim.api.nvim_set_current_win(og_win_id)
             vim.defer_fn(function()
-                vim.api.nvim_win_close(0, true)
-                vim.api.nvim_set_current_win(og_win_id)
                 vim.cmd(input)
-            end, 1)
+            end,1)
         end)
     end 
 
