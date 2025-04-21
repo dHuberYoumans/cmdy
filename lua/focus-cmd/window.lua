@@ -15,7 +15,7 @@ end
 
 function M.create_window(buf, width, height, title)
     local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
-    return popup.create(buf,{
+    win_id, opts = popup.create(buf,{
         title = title or "NORMAL MODE",
         row = math.floor(vim.o.lines / 2),
         col = math.floor((vim.o.columns - width) / 2),
@@ -24,6 +24,7 @@ function M.create_window(buf, width, height, title)
         borderchars = borderchars,
         highlight = "FocusedCmdNormal",
     })
+    return win_id, opts.border.win_id
 end
 
 
