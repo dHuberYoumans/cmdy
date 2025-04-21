@@ -1,6 +1,9 @@
 local popup = require('plenary.popup')
+local hl = require('focus-cmd.highlight')
 
 local M = {}
+
+hl.setup_hl_prompt_prefix()
 
 function M.create_prompt_buffer(filetype)
     local buf = vim.api.nvim_create_buf(false,false)
@@ -24,6 +27,11 @@ function M.create_window(buf, width, height, title)
         borderchars = borderchars,
         highlight = "FocusedCmdNormal",
     })
+
+    vim.api.nvim_buf_call(buf, function()
+        vim.fn.matchadd("FocusCmdPromptChar", [[\v^❯]])
+    end)
+
     return win_id, opts.border.win_id
 end
 

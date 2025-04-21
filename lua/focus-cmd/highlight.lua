@@ -8,4 +8,8 @@ function M.setup_highlights()
     vim.api.nvim_set_hl(0, "FocusedCmdBorder", border_hl)
 end
 
+function M.setup_hl_prompt_prefix()
+    vim.api.nvim_set_hl(0, "FocusCmdPromptChar", { link = "Special" })
+end
+
 return M
