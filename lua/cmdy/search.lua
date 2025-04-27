@@ -39,7 +39,6 @@ function M.search_hl_live(prompt_bufnr, target_bufnr)
             break
         end
     end
-
     vim.api.nvim_buf_attach(prompt_bufnr, false, {
     on_lines = function()
             local input = vim.api.nvim_buf_get_lines(prompt_bufnr,0,1,false)[1] or ""
@@ -58,12 +57,15 @@ function M.clear_hls(win)
     end
 end
 
-function M.callback(buf, win_id)
-    vim.fn.prompt_setcallback(buf, function(input)
-        search_hl.clear_hls(win_id)
+function M.attach_callback(prompt_bufnr, target_win_id)
+    vim.fn.prompt_setcallback(prompt_bufnr, function(input)
+        M.clear_hls(target_win_id)
         vim.api.nvim_win_close(0, true)
-        vim.api.nvim_set_current_win(win_id)
-        vim.cmd("/"..input)
+        vim.api.nvim_set_current_win(target_win_id)
+        vim.schedule(function()
+            vim.fn.setreg("/",input)
+            vim.fn.search(input)
+        end)
     end)
 end
 
