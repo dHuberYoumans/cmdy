@@ -69,13 +69,14 @@ function M.replace_with_live_preview(prompt_bufnr, target_win_id, target_bufnr, 
     end
 end
 
-function M.attach_callback(prompt_bufnr, target_win_id)
+function M.attach_callback(prompt_bufnr, target_win_id, cur_cursor_pos)
     vim.fn.prompt_setcallback(prompt_bufnr, function(sub)
         vim.api.nvim_win_close(0, true)
         vim.api.nvim_set_current_win(target_win_id)
         vim.schedule(function()
             vim.fn.setreg("/", sub)
             vim.cmd("set nohls")
+            vim.fn.setpos(".", cur_cursor_pos)
         end)
     end)
 end
