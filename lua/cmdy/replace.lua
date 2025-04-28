@@ -15,7 +15,6 @@ function M.preview_setup(prompt_bufnr, target_win_id, target_bufnr, to_replace)
     vim.api.nvim_win_call(target_win_id, function()
         vim.fn.setreg("/","\\<"..to_replace.."\\>")
         vim.cmd("set hls")
-        vim.fn.search(to_replace)
     end)
 end
 
@@ -44,12 +43,6 @@ function M.replace_with_live_preview(prompt_bufnr, target_win_id, target_bufnr, 
     end
     M.preview_setup(prompt_bufnr, target_win_id, target_bufnr, to_replace) 
     local matches = M.get_matches(target_win_id, to_replace)
-    vim.schedule(function()
-            vim.api.nvim_win_call(target_win_id, function() 
-                M.replace(to_replace, "")
-            end)
-        end)
-
     for _, match in ipairs(matches) do
         local line = vim.api.nvim_buf_get_lines(target_bufnr, match.row, match.row + 1, false)[1] or ""
         local before = line:sub(1, match.col)

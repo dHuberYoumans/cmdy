@@ -52,7 +52,6 @@ function M.focus_replace()
     local og_bufnr = vim.api.nvim_get_current_buf()
     local to_replace = vim.fn.expand("<cword>")
     local cur_cursor_pos = vim.fn.getcurpos()
-    vim.fn.search("\\<"..to_replace.."\\>")
     local buf = window.create_prompt_buffer("focus_replace")
     local title = "REPLACE"
     local win_id, border_id = window.create_window(buf, title)
