@@ -20,9 +20,9 @@ end
 
 function M.get_matches(target_win_id, pattern)
     local matches = {}
-    local cur_cursor_pos = vim.fn.getcurpos()
     vim.api.nvim_win_call(target_win_id, function()
         local pattern_escaped = "\\<"..vim.fn.escape(pattern, "\\^$.*[]").."\\>"
+        local cur_cursor_pos = vim.fn.getcurpos()
         vim.cmd("normal! gg0")
         while vim.fn.search(pattern_escaped, "W") > 0 do
             local row = vim.fn.line(".") - 1 -- 0 indexed
