@@ -9,7 +9,10 @@ function M.setup_highlights()
 end
 
 function M.setup_hl_prompt_prefix()
-    vim.api.nvim_set_hl(0, "FocusCmdPromptChar", { link = "Special" })
+    vim.api.nvim_set_hl(0, "FocusCmdPromptChar", {
+        fg = vim.api.nvim_get_hl(0, { name = "Special" }).fg,
+        bold = true,
+    })
 end
 
 return M

@@ -4,20 +4,22 @@ local hl = require('cmdy.highlight')
 local M = {}
 
 hl.setup_hl_prompt_prefix()
-local width, height = 60, 1
 
-function M.create_prompt_buffer(filetype)
+function M.create_prompt_buffer(filetype, prompt)
+    local prompt_str = (prompt or "❯").." "
     local buf = vim.api.nvim_create_buf(false,false)
     vim.api.nvim_buf_set_option(buf, "filetype", filetype)
     vim.api.nvim_buf_set_option(buf, "buftype", "prompt")
-    vim.fn.prompt_setprompt(buf, "❯ ")
     vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
     vim.api.nvim_buf_set_option(buf, "swapfile", false)
     vim.api.nvim_buf_set_option(buf, "buflisted", false)
+    vim.fn.prompt_setprompt(buf, prompt_str)
     return buf
 end
 
-function M.create_window(buf, title)
+function M.create_prompt(buf, title)
+    local width = math.floor(vim.o.columns * 0.75)
+    local height = 1
     local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
     win_id, opts = popup.create(buf,{
         title = title or "NORMAL MODE",
@@ -30,7 +32,7 @@ function M.create_window(buf, title)
     })
 
     vim.api.nvim_buf_call(buf, function()
-        vim.fn.matchadd("FocusCmdPromptChar", [[\v^❯]])
+        vim.fn.matchadd("FocusCmdPromptChar", [[\v^(❯|\/)]])
     end)
 
     vim.keymap.set({"n", "i"}, "<ESC>", function()
@@ -40,7 +42,6 @@ function M.create_window(buf, title)
 
     return win_id, opts.border.win_id
 end
-
 
 function M.apply_highlights(win_id, border_win_id)
     vim.api.nvim_win_set_option(

@@ -40,9 +40,9 @@ function M.search_hl_live(prompt_bufnr, target_bufnr)
         end
     end
     vim.api.nvim_buf_attach(prompt_bufnr, false, {
-    on_lines = function()
+        on_lines = function()
             local input = vim.api.nvim_buf_get_lines(prompt_bufnr,0,1,false)[1] or ""
-            input = input:gsub("^❯ ", "")
+            input = input:gsub("^/ ", "")
             M.update_search_hl(target_bufnr, target_win, input)
         end,
     })

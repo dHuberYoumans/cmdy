@@ -3,6 +3,7 @@ local hl = require('cmdy.highlight')
 local window = require('cmdy.window')
 local search = require('cmdy.search')
 local replace = require('cmdy.replace')
+local buffers = require('cmdy.buffers')
 
 local M = {}
 
@@ -15,7 +16,7 @@ function M.focus_normal_mode()
     local buf = window.create_prompt_buffer("focus_normal_mode")
     local title = "NORMAL MODE"
 
-    local win_id, border_id = window.create_window(buf, title)
+    local win_id, border_id = window.create_prompt(buf, title)
     vim.defer_fn(function()
         window.apply_highlights(win_id, border_id)
     end,10)
@@ -33,17 +34,26 @@ end
 function M.focus_search()
     local og_win_id = vim.api.nvim_get_current_win()
     local og_buf_id = vim.api.nvim_get_current_buf()
-    local buf = window.create_prompt_buffer("focus_search")
+    local buf = window.create_prompt_buffer("focus_search", "/")
     local title = "SEARCH"
 
-    local win_id, border_id = window.create_window(buf, title)
-    vim.defer_fn(function()
+    local win_id, border_id = window.create_prompt(buf, title)
+    vim.schedule(function()
         window.apply_highlights(win_id, border_id)
-    end,10)
+    end)
 
     search.search_hl_live(buf, og_buf_id)
     search.attach_callback(buf, og_win_id)
     vim.cmd("startinsert")
+end
+
+function M.focus_buffers()
+    local og_win_id = vim.api.nvim_get_current_win()
+    local win_id, border_id = buffers.create_buffer_window()
+    vim.schedule(function()
+        window.apply_highlights(win_id, border_id)
+    end)
+    buffers.attach_callback(og_win_id)
 end
 
 
@@ -54,7 +64,7 @@ function M.focus_replace()
     local cur_cursor_pos = vim.fn.getcurpos()
     local buf = window.create_prompt_buffer("focus_replace")
     local title = "REPLACE"
-    local win_id, border_id = window.create_window(buf, title)
+    local win_id, border_id = window.create_prompt(buf, title)
     vim.schedule(function()
         window.apply_highlights(win_id, border_id)
     end)
