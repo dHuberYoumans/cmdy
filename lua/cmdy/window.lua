@@ -21,7 +21,8 @@ function M.create_prompt(buf, title)
     local width = math.floor(vim.o.columns * 0.75)
     local height = 1
     local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
-    win_id, opts = popup.create(buf,{
+    hl.setup_highlights()
+    local win_id, opts = popup.create(buf,{
         title = title or "NORMAL MODE",
         row = math.floor(vim.o.lines / 2),
         col = math.floor((vim.o.columns - width) / 2),
@@ -30,6 +31,9 @@ function M.create_prompt(buf, title)
         borderchars = borderchars,
         highlight = "FocusedCmdNormal",
     })
+    vim.schedule(function()
+        M.apply_highlights(win_id, opts.border.win_id)
+    end)
 
     vim.api.nvim_buf_call(buf, function()
         vim.fn.matchadd("FocusCmdPromptChar", [[\v^(❯|\/)]])
@@ -40,6 +44,17 @@ function M.create_prompt(buf, title)
         vim.api.nvim_win_close(win_id, true)
     end, { buffer = buf })
 
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        buffer = buf,
+        callback = function()
+            vim.defer_fn(function()
+                if vim.api.nvim_win_is_valid(win_id) and vim.api.nvim_win_is_valid(opts.border.win_id) then
+                    M.apply_highlights(win_id, opts.border.win_id)
+                end
+            end, 15)
+        end
+    })
+
     return win_id, opts.border.win_id
 end
 
@@ -47,7 +62,7 @@ function M.apply_highlights(win_id, border_win_id)
     vim.api.nvim_win_set_option(
         win_id,
         "winhighlight",
-        "Normal:FocusedCmdNormal"
+        "Normal:FocusedCmdNormal,EndOfBuffer:FocusedCmdNormal"
     )
     vim.api.nvim_win_set_option(
         border_win_id,

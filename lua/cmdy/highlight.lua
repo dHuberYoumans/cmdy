@@ -15,4 +15,21 @@ function M.setup_hl_prompt_prefix()
     })
 end
 
+M.setup_highlights()
+M.setup_hl_prompt_prefix()
+
+vim.defer_fn(function()
+    vim.api.nvim_create_augroup("FocusedCmdHighlights", { clear = true })
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        group = "FocusedCmdHighlights",
+        callback = function()
+            vim.defer_fn(function()
+                M.setup_highlights()
+                M.setup_hl_prompt_prefix()
+                vim.cmd('redraw!')
+            end,10)
+        end
+    })
+end,0)
+
 return M
