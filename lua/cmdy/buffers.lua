@@ -2,6 +2,7 @@ local popup = require('plenary.popup')
 local utils = require('cmdy.utils')
 local window = require('cmdy.window')
 local hl = require('cmdy.highlight')
+local search = require('cmdy.search')
 
 local M = {}
 
@@ -9,6 +10,9 @@ function M.create_buffer_window()
 
     local width = math.floor(vim.o.columns * 0.75)
     local height = math.floor(2 * vim.o.lines / 3)
+    local row = 3
+    local col = math.floor((vim.o.columns - width)/2)
+    local prompt_row = row + height + 1
     local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
 
     local buf = vim.api.nvim_create_buf(false,true)
@@ -24,8 +28,8 @@ function M.create_buffer_window()
     
     local win_id, opts = popup.create(buf, {
         title = "BUFFER LIST",
-        row = 3,
-        col = math.floor((vim.o.columns - width)/2),
+        row = row,
+        col = col,
         minwidth = width,
         minheight = height,
         borderchars = borderchars,
@@ -34,11 +38,7 @@ function M.create_buffer_window()
     vim.api.nvim_win_set_option(win_id,"cursorline",true)
 
     window.apply_highlights(win_id, opts.border.win_id)
-
-    vim.schedule(function()
-        vim.cmd('redraw!')
-    end)
-
+        
     vim.api.nvim_create_autocmd("ColorScheme", {
         buffer = buf,
         callback = function()
@@ -49,8 +49,32 @@ function M.create_buffer_window()
             end, 15)
         end
     })
+    
+    vim.keymap.set({"n", "i"}, "<ESC>", function()
+        vim.cmd("stopinsert")
+        vim.api.nvim_win_close(0, true)
+    end, { buffer = buf })
+
+    vim.keymap.set({"n"}, "/", function()
+        M.open_search_prompt(width, prompt_row , col)
+    end, { buffer = buf })
 
     return win_id, opts.border.win_id
+end
+
+function M.open_search_prompt(width, row, col)
+    local og_win_id = vim.api.nvim_get_current_win()
+    local og_buf_id = vim.api.nvim_get_current_buf()
+    local buf = window.create_prompt_buffer("focus_search", "/")
+
+    local win_id, border_id = window.create_prompt(buf, "", width, row, col)
+    vim.schedule(function()
+        window.apply_highlights(win_id, border_id)
+    end)
+
+    search.search_hl_live(buf, og_buf_id)
+    search.attach_callback(buf, og_win_id)
+    vim.cmd("startinsert")
 end
 
 function M.attach_callback(target_win_id)
