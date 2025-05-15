@@ -26,7 +26,10 @@ function M.update_search_hl(bufnr, win, pattern)
 
     -- highlight match inside win
     vim.api.nvim_win_call(win, function()
-        last_match_id = vim.fn.matchadd("Search", pattern)
+        local ok, match_id = pcall(vim.fn.matchadd,"Search", pattern)
+        if ok then
+            last_match_id = match_id
+        end
     end)
 end
 
