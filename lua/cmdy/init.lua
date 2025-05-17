@@ -4,6 +4,7 @@ local window = require('cmdy.window')
 local search = require('cmdy.search')
 local replace = require('cmdy.replace')
 local buffers = require('cmdy.buffers')
+local autocmp = require('cmdy.autocompletion')
 
 local M = {}
 
@@ -11,19 +12,21 @@ hl.setup_highlights()
 
 
 function M.focus_normal_mode()
-    local og_win_id = vim.api.nvim_get_current_win()
-    local og_buf_id = vim.api.nvim_get_current_buf()
+    local src_win = vim.api.nvim_get_current_win()
+    local src_buf = vim.api.nvim_get_current_buf()
     local buf = window.create_prompt_buffer("focus_normal_mode")
     local title = "NORMAL MODE"
 
-    local win_id, border_id = window.create_prompt(buf, title)
+    local win, border = window.create_prompt(buf, title)
     vim.defer_fn(function()
-        window.apply_highlights(win_id, border_id)
+        window.apply_highlights(win, border)
     end,10)
+ 
+    autocmp.setup(src_buf, win, buf)
 
     vim.fn.prompt_setcallback(buf, function(input)
         vim.api.nvim_win_close(0, true)
-        vim.api.nvim_set_current_win(og_win_id)
+        vim.api.nvim_set_current_win(src_win)
         vim.schedule(function()
             vim.cmd(input)
         end,1)
@@ -32,44 +35,43 @@ function M.focus_normal_mode()
 end
 
 function M.focus_search()
-    local og_win_id = vim.api.nvim_get_current_win()
-    local og_buf_id = vim.api.nvim_get_current_buf()
+    local src_win = vim.api.nvim_get_current_win()
+    local src_buf = vim.api.nvim_get_current_buf()
     local buf = window.create_prompt_buffer("focus_search", "/")
     local title = "SEARCH"
 
-    local win_id, border_id = window.create_prompt(buf, title)
+    local win, border = window.create_prompt(buf, title)
     vim.schedule(function()
-        window.apply_highlights(win_id, border_id)
+        window.apply_highlights(win, border)
     end)
 
-    search.search_hl_live(buf, og_buf_id)
-    search.attach_callback(buf, og_win_id)
+    search.search_hl_live(buf, src_buf)
+    search.attach_callback(buf, src_win)
     vim.cmd("startinsert")
 end
 
 function M.focus_buffers()
-    local og_win_id = vim.api.nvim_get_current_win()
-    local win_id, border_id = buffers.create_buffer_window()
+    local src_win = vim.api.nvim_get_current_win()
+    local win, border = buffers.create_buffer_window()
     vim.schedule(function()
-        window.apply_highlights(win_id, border_id)
+        window.apply_highlights(win, border)
     end)
-    buffers.attach_callback(og_win_id)
+    buffers.attach_callback(src_win)
 end
 
-
 function M.focus_replace()
-    local og_win_id = vim.api.nvim_get_current_win()
-    local og_bufnr = vim.api.nvim_get_current_buf()
+    local src_win = vim.api.nvim_get_current_win()
+    local src_buf = vim.api.nvim_get_current_buf()
     local to_replace = vim.fn.expand("<cword>")
     local cur_cursor_pos = vim.fn.getcurpos()
     local buf = window.create_prompt_buffer("focus_replace")
     local title = "REPLACE"
-    local win_id, border_id = window.create_prompt(buf, title)
+    local win, border = window.create_prompt(buf, title)
     vim.schedule(function()
-        window.apply_highlights(win_id, border_id)
+        window.apply_highlights(win, border)
     end)
-    replace.replace_with_live_preview(buf, og_win_id, og_bufnr, to_replace)
-    replace.attach_callback(buf, og_win_id, cur_cursor_pos)
+    replace.replace_with_live_preview(buf, src_win, src_buf, to_replace)
+    replace.attach_callback(buf, src_win, cur_cursor_pos)
     vim.cmd("startinsert")
 end
 
