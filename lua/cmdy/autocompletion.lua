@@ -8,34 +8,57 @@ local file_cmds = {
     source = true,
 }
 
-local buffer_cmds = {
-    b = true,
-    buffer = true,
-    bdelete = true,
-    bd = true,
+local prompt_chars = {
+    ["❯"] = true,
+    [">"] = true,
+    ["$"] = true,
+    ["λ"] = true,
+    ["%"] = true,
+    ["#"] = true,
 }
-
-local shell_cmds = {
-    ["!"] = true
-}
-
 
 local function keys(str)
     return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
 function M.smart_tab()
-    local cursor_col = vim.fn.col('.') - 1
-    local line = vim.fn.getline('.')
-    local before_cursor = line:sub(1, cursor_col)
-    local words = vim.split(before_cursor, "%s+")
-    local cur_word = words[1] or ""
+    local current_buf = vim.api.nvim_get_current_buf()
 
-    if file_cmds[cur_word] then 
-        return keys("<C-x><C-f>") 
-    else 
-        return keys("<C-x><C-n>")
-    end
+    vim.api.nvim_buf_call(current_buf, function()
+        local cursor_col = vim.fn.col('.')
+        local line = vim.fn.getline('.')
+        -- strip leading prompt char if present
+        local leading = vim.fn.strcharpart(line, 0, 1)
+        if prompt_chars[leading] then 
+            line = line:sub(#leading + 2)
+        end
+        local prefix = line:sub(1, cursor_col - 1)
+        local args = vim.split(prefix, "%s+")
+        local current_word = args[#args] or ""
+
+        local context
+
+        if #args == 1 then 
+            context = "cmdline"
+        elseif file_cmds[args[1]] then
+            context = "file"
+        elseif args[1] == "set" then
+            context = "option"
+        else 
+            context = "cmdline"
+        end
+
+        local suggestions = vim.fn.getcompletion(current_word, context)
+        if context == "file" and #args == 1 then
+            local suggestions = ""
+        end
+        vim.fn.writefile({ "suggestions: " ..  vim.inspect(suggestions) }, "/tmp/cmdy-debug.log", "a")
+
+        vim.schedule(function()
+            vim.fn.complete(cursor_col - #current_word, suggestions)
+        end)
+    end)
+    return ""
 end
 
 function M.setup(src_buf, target, buf)
@@ -47,12 +70,11 @@ function M.setup(src_buf, target, buf)
     end
     vim.api.nvim_buf_call(buf, function()
         vim.cmd([[
-            inoremap <buffer><expr> <Tab> pumvisible() ? "\<C-n>" : "\<C-x>\<C-f>"
-
+            inoremap <buffer><expr> <Tab> v:lua.require'cmdy.autocompletion'.smart_tab()
             inoremap <buffer><expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
             setlocal completeopt=menu,menuone,noselect
             ]])
     end)
 end
-   
+
 return M
