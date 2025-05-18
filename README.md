@@ -24,13 +24,12 @@ In fact, there is no problem, which makes the solution so much nicer to discover
 
 ## WIP 
 
-* implement cmd-auto-completion 
 * dynamic resizing of prompt buffers 
 * place search prompt in buffer list below the focus window
 
 ## A bug's life 🐛
 
-**replace-all**
+### replace-all
 
 When replacing all, all but the _very first line_ will be replaced. Suppose that we are editing a file with the following content
 ```
@@ -59,6 +58,9 @@ and do the same replacement, we good
 4 Goodbye World!
 ```
 
+### autocompletion
+
+When both, the prompt and autocompletion's suggestions window are open, `<ESC>` will close the prompt, leaving the window ith the suggestions open - one has to hit `<ESC>` again. To properly close the window of suggestions, use `<C-e>` 
 
 ## Know Yuse 
 
@@ -82,6 +84,21 @@ vim.keymap.set('n', '/', function() cmdy.focus_search() end)
 vim.keymap.set('n', '<leader>r', function() cmdy.focus_replace() end)
 vim.keymap.set('n', '<leader>bs', function() cmdy.focus_buffers() end)
 ```
+
+## Mostly Harmless
+
+### autocompletion
+
+Were we not to use prompt buffers, we could rely on better plugins for autocompletion like [nvim-cmp](https://github.com/hrsh7th/nvim-cmp). However, we are trying to mimic the autocompletion of the cmdline, and that in a minimalistic way.
+
+For autocompletion inside the prompt buffer, we are using `vim.fn.getcompletion`. To get the correct context, like `cmdline`, `option` or `file` we filter the prompt input. Based on the prefix, we decide for the context. For exmaple, when we have an empty prompt, by default, we set the context to `cmdline`, since we expect the user to enter a command. When the user starts typing and hits `<TAB>` (which will trigger the autocmpletion) we still set the context to `cmdline`. However, if the user hits `<TAB>` after having typed the first command, we will set the context as follows:
+
+* `set` -> `option`
+* `e, edit, vsplit, hsplit, source` -> `file` 
+
+We will update the prefix logic and decisions gradually as we go along.
+
+As said before, `<TAB>` will trigger the autocompletion. Once the suggestions are shown in a new window, we can choose between them with the standard keys: `<C-n>` for the next, `<C-p>` for the previous suggestion. We confirm a choice with `<CR>` (Enter)  To close the window of suggestions, use `<C-e>`.
 
 ## Nuff Ced 
 
