@@ -58,6 +58,11 @@ function M.create_prompt(buf, opts)
     return win_id, opts.border.win_id
 end
 
+function M.create_window(buf, opts)
+    win, win_opts = popup.create(buf, opts)
+    return win, win_opts
+end
+
 function M.apply_highlights(win_id, border_win_id)
     vim.api.nvim_win_set_option(
         win_id,
