@@ -28,7 +28,10 @@ function M.focus_normal_mode()
         vim.api.nvim_win_close(0, true)
         vim.api.nvim_set_current_win(src_win)
         vim.schedule(function()
-            vim.cmd(input)
+            local ok,err = pcall(vim.cmd,input)
+            if not ok then 
+                vim.notify(err, vim.log.levels.ERROR) 
+            end
         end,1)
     end)
     vim.cmd("startinsert")
