@@ -25,7 +25,6 @@ In fact, there is no problem, which makes the solution so much nicer to discover
 ## WIP 
 
 * dynamic resizing of prompt buffers 
-* place search prompt in buffer list below the focus window
 
 ## A bug's life 🐛
 
@@ -86,6 +85,39 @@ vim.keymap.set('n', '<leader>bs', function() cmdy.focus_buffers() end)
 ```
 
 ## Mostly Harmless
+
+### config.lua
+
+If you like to change the appearences of the prompts or the window listing the buffers, you can edit the `config.lua` file. 
+Our default options are 
+```lua
+-- prompt defaults
+M.prompt_defaults = {
+    title = "NORMAL MODE",
+    width = math.floor(vim.o.columns * 0.75),
+    line = math.floor(vim.o.lines / 2),
+    col = math.floor((vim.o.columns - math.floor(vim.o.columns * 0.75)) / 2),
+    height = 1,
+    borderchars = borderchars,
+}
+
+-- buffer list window (blsw)
+local blsw_width = math.floor(vim.o.columns * 0.75)
+local blsw_height = math.floor(vim.o.lines * 0.75)
+local blsw_row = 3
+local blsw_col = math.floor((vim.o.columns - blsw_width)/2)
+local blsw_prompt_row = blsw_row + blsw_height
+
+M.buffer_window = {
+    title = "BUFFER LIST",
+    line = blsw_row,
+    col = blsw_col,
+    width = blsw_width,
+    minheight = blsw_height - gap,
+    maxheight = blsw_height - gap,
+    borderchars = borderchars,
+}
+```
 
 ### autocompletion
 
