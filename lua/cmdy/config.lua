@@ -6,14 +6,13 @@ local offset_vertical = 3
 
 -- prompt defaults
 M.prompt_defaults = {
-        title = "NORMAL MODE",
-        width = math.floor(vim.o.columns * 0.75),
-        line = math.floor(vim.o.lines / 2),
-        col = math.floor((vim.o.columns - math.floor(vim.o.columns * 0.75)) / 2),
-        height = 1,
-        borderchars = borderchars,
-        --highlight = "FocusedCmdNormal",
-    }
+    title = "NORMAL MODE",
+    width = math.floor(vim.o.columns * 0.75),
+    line = math.floor(vim.o.lines / 2),
+    col = math.floor((vim.o.columns - math.floor(vim.o.columns * 0.75)) / 2),
+    height = 1,
+    borderchars = borderchars,
+}
 
 
 -- buffer list window (blsw)

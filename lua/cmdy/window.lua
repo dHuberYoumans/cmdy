@@ -1,5 +1,6 @@
 local popup = require('plenary.popup')
 local hl = require('cmdy.highlight')
+local config = require('cmdy.config')
 
 local M = {}
 
@@ -17,22 +18,20 @@ function M.create_prompt_buffer(filetype, prompt)
     return buf
 end
 
-function M.create_prompt(buf, title, width, row, col)
-    local width = width or math.floor(vim.o.columns * 0.75)
-    local height = 1
-    row = row or math.floor(vim.o.lines / 2)
-    col = col or math.floor((vim.o.columns - width) / 2)
-    local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+function M.create_prompt(buf, opts)
+
+    local prompt_opts = {
+        title = opts.title or config.prompt_defaults.title,
+        width = opts.width or config.prompt_defaults.width,
+        line = opts.row or config.prompt_defaults.line,
+        col = opts.col or config.prompt_defaults.col,
+        height = config.prompt_defaults.height,
+        borderchars = config.prompt_defaults.borderchars,
+    }
+
     hl.setup_highlights()
-    local win_id, opts = popup.create(buf,{
-        title = title or "NORMAL MODE",
-        row = row, 
-        col = col,
-        minwidth = width,
-        minheight = height,
-        borderchars = borderchars,
-        highlight = "FocusedCmdNormal",
-    })
+
+    local win_id, opts = popup.create(buf, prompt_opts)
 
     M.apply_highlights(win_id, opts.border.win_id)
 

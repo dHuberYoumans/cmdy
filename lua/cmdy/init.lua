@@ -5,6 +5,7 @@ local search = require('cmdy.search')
 local replace = require('cmdy.replace')
 local buffers = require('cmdy.buffers')
 local autocmp = require('cmdy.autocompletion')
+local config = require('cmdy.config')
 
 local M = {}
 
@@ -15,9 +16,8 @@ function M.focus_normal_mode()
     local src_win = vim.api.nvim_get_current_win()
     local src_buf = vim.api.nvim_get_current_buf()
     local buf = window.create_prompt_buffer("focus_normal_mode")
-    local title = "NORMAL MODE"
 
-    local win, border = window.create_prompt(buf, title)
+    local win, border = window.create_prompt(buf, {})
     vim.defer_fn(function()
         window.apply_highlights(win, border)
     end,10)
@@ -41,9 +41,8 @@ function M.focus_search()
     local src_win = vim.api.nvim_get_current_win()
     local src_buf = vim.api.nvim_get_current_buf()
     local buf = window.create_prompt_buffer("focus_search", "/")
-    local title = "SEARCH"
 
-    local win, border = window.create_prompt(buf, title)
+    local win, border = window.create_prompt(buf, config.search)
     vim.schedule(function()
         window.apply_highlights(win, border)
     end)
@@ -54,8 +53,14 @@ function M.focus_search()
 end
 
 function M.focus_buffers()
+
+    local opts = {
+        display = config.buffer_window,
+        prompt = config.buffer_window_prompt,
+    }
+
     local src_win = vim.api.nvim_get_current_win()
-    local win, border = buffers.create_buffer_window()
+    local win, border = buffers.create_buffer_window(opts)
     vim.schedule(function()
         window.apply_highlights(win, border)
     end)
