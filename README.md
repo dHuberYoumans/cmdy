@@ -18,9 +18,9 @@ In fact, there is no problem, which makes the solution so much nicer to discover
 * a focusd window listing open buffers
 
 ## 📸
-<img width="330" alt="focused-buffer" src="https://github.com/user-attachments/assets/0a39c801-2916-4e9b-83d3-360c2fa7218f" />
-<img width="330" alt="focused-search" src="https://github.com/user-attachments/assets/612ec3bf-c799-4a7f-b9fc-1b7b6f8c03fd" />
-<img width="330" alt="focused-normal-mode" src="https://github.com/user-attachments/assets/067d6a05-83ee-41d3-b367-a25e27a68304" />
+| display of buffer list | floating search prompt | floating normal prompt | 
+| ----- | ----- | ----- |
+| <img width="330" alt="focused-buffer" src="https://github.com/user-attachments/assets/0a39c801-2916-4e9b-83d3-360c2fa7218f" /> |  <img width="330" alt="focused-search" src="https://github.com/user-attachments/assets/612ec3bf-c799-4a7f-b9fc-1b7b6f8c03fd" /> |  <img width="330" alt="focused-normal-mode" src="https://github.com/user-attachments/assets/067d6a05-83ee-41d3-b367-a25e27a68304" /> |
 
 ## WIP 
 
