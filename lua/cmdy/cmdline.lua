@@ -9,8 +9,8 @@ local state = {
 }
 
 local src = {
- win = vim.api.nvim_get_current_win(),
- buf = vim.api.nvim_get_current_buf(),
+ win = nil,
+ buf = nil, 
 }
 
 local M = {fn = {}}
@@ -43,8 +43,8 @@ end
 
 vim.api.nvim_create_autocmd("CmdlineEnter", {
     callback = function()
-        win = vim.api.nvim_get_current_win(),
-        buf = vim.api.nvim_get_current_buf(),
+        src.win = vim.api.nvim_get_current_win()
+        src.buf = vim.api.nvim_get_current_buf()
         vim.schedule(function()
             M.mirror_cmdline()
         end)

@@ -3,8 +3,27 @@ local utils = require('cmdy.utils')
 local window = require('cmdy.window')
 local hl = require('cmdy.highlight')
 local search = require('cmdy.search')
+local config = require('cmdy.config')
+
+src = {
+    win = nil,
+    buf = nil,
+}
 
 local M = {}
+
+function M.focus_buffers()
+    local opts = {
+        display = config.buffer_window,
+        prompt = config.buffer_window_prompt,
+    }
+    src.win = vim.api.nvim_get_current_win()
+    local win, border = M.create_buffer_window(opts)
+    vim.schedule(function()
+        window.apply_highlights(win, border)
+    end)
+    M.attach_callback(src.win)
+end
 
 function M.create_buffer_window(opts)
 

@@ -3,7 +3,29 @@ local hl = require('cmdy.highlight')
 local window = require('cmdy.window')
 local search = require('cmdy.search')
 
+src = {
+    win = nil,
+    buf = nil,
+}
+
 local M = {}
+
+function M.focus_replace()
+    src.win = vim.api.nvim_get_current_win()
+    src.buf = vim.api.nvim_get_current_buf()
+    local to_replace = vim.fn.expand("<cword>")
+    local cur_cursor_pos = vim.fn.getcurpos()
+    local buf = window.create_prompt_buffer("focus_replace")
+    local title = "REPLACE"
+    local win, border = window.create_prompt(buf, title)
+    vim.schedule(function()
+        window.apply_highlights(win, border)
+    end)
+    M.replace_with_live_preview(buf, src.win, src.buf, to_replace)
+    M.attach_callback(buf, src.win, cur_cursor_pos)
+    vim.cmd("startinsert")
+end
+
 
 function M.replace(to_replace, sub)
     local to_replace_escaped = vim.fn.escape(to_replace, '\\^$.*[]')

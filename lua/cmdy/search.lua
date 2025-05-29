@@ -1,10 +1,31 @@
 local popup = require('plenary.popup')
 local hl = require('cmdy.highlight')
 local window = require('cmdy.window')
+local config = require('cmdy.config')
+
+local last_match_id = nil
+
+src = {
+    win = nil,
+    buf = nil,
+}
 
 local M = {}
 
-local last_match_id = nil
+function M.focus_search()
+    src.win = vim.api.nvim_get_current_win()
+    src.buf = vim.api.nvim_get_current_buf()
+    local buf = window.create_prompt_buffer("focus_search", "/")
+
+    local win, border = window.create_prompt(buf, config.search)
+    vim.schedule(function()
+        window.apply_highlights(win, border)
+    end)
+
+    M.search_hl_live(buf, src.buf)
+    M.attach_callback(buf, src.win)
+    vim.cmd("startinsert")
+end
 
 function M.update_search_hl(bufnr, win, pattern)   
     if last_match_id then
