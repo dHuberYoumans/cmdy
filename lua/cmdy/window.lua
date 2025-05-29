@@ -60,7 +60,7 @@ end
 
 function M.create_window(buf, opts)
     win, win_opts = popup.create(buf, opts)
-    return win, win_opts
+    return win, win_opts.border.win_id
 end
 
 function M.apply_highlights(win_id, border_win_id)

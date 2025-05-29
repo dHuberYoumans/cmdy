@@ -18,11 +18,11 @@ function M.create_buffer_window(opts)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
     hl.setup_highlights()
-    local win, win_opts = window.create_window(buf, opts.display)
+    local win, border = window.create_window(buf, opts.display)
 
     vim.api.nvim_win_set_option(win,"cursorline",false)
 
-    window.apply_highlights(win, win_opts.border.win_id)
+    window.apply_highlights(win, border)
         
     vim.api.nvim_create_autocmd("ColorScheme", {
         buffer = buf,
