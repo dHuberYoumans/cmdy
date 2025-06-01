@@ -14,8 +14,8 @@ local M = {}
 
 function M.focus_buffers()
     local opts = {
-        display = config.buffer_window,
-        prompt = config.buffer_window_prompt,
+        display = config.options.buffers.buffer_window,
+        prompt = config.options.buffers.buffer_window_prompt,
     }
     src.win = vim.api.nvim_get_current_win()
     local win, border = M.create_buffer_window(opts)
@@ -46,13 +46,15 @@ function M.create_buffer_window(opts)
     vim.api.nvim_win_set_option(win,"cursorline",false)
 
     window.apply_highlights(win, border)
+
+    M.open_search_prompt(opts.prompt,win, buf)
         
     vim.api.nvim_create_autocmd("ColorScheme", {
         buffer = buf,
         callback = function()
             vim.defer_fn(function()
-                if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_is_valid(win_opts.border.win_id) then
-                    window.apply_highlights(win, win_opts.border.win_id)
+                if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_is_valid(border) then
+                    window.apply_highlights(win, border)
                 end
             end, 15)
         end
@@ -63,23 +65,23 @@ function M.create_buffer_window(opts)
         vim.api.nvim_win_close(0, true)
     end, { buffer = buf })
 
-    vim.keymap.set({"n"}, "/", function()
-        M.open_search_prompt(opts.prompt,win, buf)
-    end, { buffer = buf })
+   vim.keymap.set({"n"}, "/", function()
+       M.open_search_prompt(opts.prompt,win, buf)
+   end, { buffer = buf })
 
-    return win, win_opts.border.win_id
+    return win, border 
 end
 
-function M.open_search_prompt(opts, src_win_id, src_buf_id)
+function M.open_search_prompt(opts, src_win, src_buf)
     local buf = window.create_prompt_buffer("focus_search", "/")
 
-    local win_id, border_id = window.create_prompt(buf, opts)
+    local win, border = window.create_prompt(buf, opts)
     vim.schedule(function()
-        window.apply_highlights(win_id, border_id)
+        window.apply_highlights(win, border)
     end)
 
-    search.search_hl_live(buf, src_buf_id)
-    search.attach_callback(buf, src_win_id)
+    search.search_hl_live(buf, src_buf)
+    search.attach_callback(buf, src_win)
     vim.cmd("startinsert")
 end
 
