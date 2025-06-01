@@ -1,3 +1,5 @@
+local config = require('cmdy.config')
+
 local M = {}
 
 function M.setup_highlights()
@@ -13,6 +15,12 @@ function M.setup_hl_prompt_prefix()
         fg = vim.api.nvim_get_hl(0, { name = "Special" }).fg,
         bold = true,
     })
+end
+
+function M.hl_prompt(prompt)
+    if not config.prompt_symbols[prompt] then return end
+    local escaped = vim.fn.escape(prompt, [[\/.^$~[]*]])
+    vim.fn.matchadd("FocusCmdPromptChar", "\\v^(" .. escaped .. "|/)")
 end
 
 M.setup_highlights()

@@ -17,7 +17,7 @@ function M.focus_search()
     src.buf = vim.api.nvim_get_current_buf()
     local buf = window.create_prompt_buffer("focus_search", "/")
 
-    local win, border = window.create_prompt(buf, config.search)
+    local win, border = window.create_prompt(buf, config.options.search)
     vim.schedule(function()
         window.apply_highlights(win, border)
     end)

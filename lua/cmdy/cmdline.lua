@@ -13,19 +13,20 @@ local src = {
  buf = nil, 
 }
 
+local prompt = config.options.cmdline.prompt
+
 local M = {fn = {}}
 local fn = {}
 
-
 function M.mirror_cmdline()
     state.buf = vim.api.nvim_create_buf(false,true)
-    state.mirror, border = window.create_window(state.buf, config.prompt_defaults)
+    state.mirror, border = window.create_window(state.buf, config.options.prompt)
     hl.setup_highlights()
     window.apply_highlights(state.mirror, border)
     local line = vim.fn.getcmdline()
-    vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {"❯ " .. line})
+    vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {prompt .. " " .. line})
     vim.api.nvim_buf_call(state.buf, function()
-        vim.fn.matchadd("FocusCmdPromptChar", [[\v^(❯|\/)]])
+        hl.hl_prompt(prompt)
     end)
     vim.cmd('redraw')
 end
@@ -39,9 +40,9 @@ vim.api.nvim_create_autocmd("BufEnter", {
 function fn.update_cmdline_content()
     local line = vim.fn.getcmdline()
     if state.buf then
-        vim.api.nvim_buf_set_lines(state.buf,0,-1,false, {"❯ "..line}) 
+        vim.api.nvim_buf_set_lines(state.buf,0,-1,false, {prompt .. " " .. line}) 
         vim.api.nvim_buf_call(state.buf, function()
-            vim.fn.matchadd("FocusCmdPromptChar", [[\v^(❯|\/)]])
+            hl.hl_prompt(prompt)
         end)
     end
     vim.cmd('redraw')

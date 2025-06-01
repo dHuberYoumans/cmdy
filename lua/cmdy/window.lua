@@ -21,12 +21,12 @@ end
 function M.create_prompt(buf, opts)
 
     local prompt_opts = {
-        title = opts.title or config.prompt_defaults.title,
-        width = opts.width or config.prompt_defaults.width,
-        line = opts.row or config.prompt_defaults.line,
-        col = opts.col or config.prompt_defaults.col,
-        height = config.prompt_defaults.height,
-        borderchars = config.prompt_defaults.borderchars,
+        title = opts.title or config.options.prompt.title,
+        width = opts.width or config.options.prompt.width,
+        line = opts.row or config.options.prompt.line,
+        col = opts.col or config.options.prompt.col,
+        height = config.options.prompt.height,
+        borderchars = config.options.prompt.borderchars,
     }
 
     hl.setup_highlights()
@@ -59,7 +59,7 @@ function M.create_prompt(buf, opts)
 end
 
 function M.create_window(buf, opts)
-    win, win_opts = popup.create(buf, opts)
+    local win, win_opts = popup.create(buf, opts)
     return win, win_opts.border.win_id
 end
 
