@@ -25,6 +25,8 @@ In fact, there is no problem, which makes the solution so much nicer to discover
 ## WIP 
 
 * dynamic resizing of prompt buffers 
+* filter the buffer list by search input  
+* allow custom color configurations for the prompts
 
 ## A bug's life 🐛
 
@@ -55,11 +57,7 @@ and do the same replacement, we good
 2 Goodbye World!
 3 Goodbye World!
 4 Goodbye World!
-```
-
-### autocompletion
-
-When both, the prompt and autocompletion's suggestions window are open, `<ESC>` will close the prompt, leaving the window ith the suggestions open - one has to hit `<ESC>` again. To properly close the window of suggestions, use `<C-e>` 
+```  
 
 ## Know Yuse 
 
@@ -78,7 +76,6 @@ use {
 Keeping things simple, we remap those keys we want to put in focus. We chose to use to define a dedicated `cmdy.lua` in the standard location `~y/.config/nvim/after/plugin`
 ```lua
 local cmdy = require('cmdy')
-vim.keymap.set('n', ':', function() cmdy.focus_normal_mode() end)
 vim.keymap.set('n', '/', function() cmdy.focus_search() end)
 vim.keymap.set('n', '<leader>r', function() cmdy.focus_replace() end)
 vim.keymap.set('n', '<leader>bs', function() cmdy.focus_buffers() end)
@@ -88,49 +85,91 @@ vim.keymap.set('n', '<leader>bs', function() cmdy.focus_buffers() end)
 
 ### config.lua
 
-If you like to change the appearences of the prompts or the window listing the buffers, you can edit the `config.lua` file. 
-Our default options are 
+If you like to change the appearences of the prompts or the window listing the buffers, you can do so directly in `init.lua` by defining a table `my_config` and calling 
+```config.setup({my_config})```.
+
+The layout of `my_config` must be as follows:
 ```lua
--- prompt defaults
-M.prompt_defaults = {
-    title = "NORMAL MODE",
-    width = math.floor(vim.o.columns * 0.75),
-    line = math.floor(vim.o.lines / 2),
-    col = math.floor((vim.o.columns - math.floor(vim.o.columns * 0.75)) / 2),
-    height = 1,
-    borderchars = borderchars,
-}
-
--- buffer list window (blsw)
-local blsw_width = math.floor(vim.o.columns * 0.75)
-local blsw_height = math.floor(vim.o.lines * 0.75)
-local blsw_row = 3
-local blsw_col = math.floor((vim.o.columns - blsw_width)/2)
-local blsw_prompt_row = blsw_row + blsw_height
-
-M.buffer_window = {
-    title = "BUFFER LIST",
-    line = blsw_row,
-    col = blsw_col,
-    width = blsw_width,
-    minheight = blsw_height - gap,
-    maxheight = blsw_height - gap,
-    borderchars = borderchars,
+my_config = {
+    -- prompt character
+    cmdline = {
+        prompt =
+    },
+    -- buffer window layout
+    buffers = {
+        buffer_window = {
+            title = 
+            line = 
+            col = 
+            width = 
+            minheight = 
+            maxheight =
+            borderchars =
+        },
+        buffer_window_prompt = {
+            title =
+            width =
+            row =
+            col =
+        }
+    }
+    -- search prompt
+    search = {
+        title = 
+    }
 }
 ```
+Where, at the moment, we allow the following prompt symbols (which can be easily expanded in `config.lua`)
+```lua
+config.prompt_symbols = {
+    ["❯"] = true,
+    ["$"] = true,
+    ["λ"] = true,
+    ["/"] = true,
+}
+```
+Our default options are 
+```lua
+defaults = {
+    -- prompt character
+    cmdline = {
+        prompt = "❯",
+    },
+    -- buffer window layout
+    buffers = {
+        buffer_window = {
+        title = "BUFFER LIST",
+        line = blsw_row,
+        col = blsw_col,
+        width = blsw_width,
+        minheight = blsw_height - gap,
+        maxheight = blsw_height - gap,
+        borderchars = borderchars,
+    },
+    buffer_window_prompt = {
+        title = '',
+        width = blsw_width,
+        row =  blsw_prompt_row,
+        col = blsw_col,
+    }
+    -- search prompt
+    search = {
+        title = "SEARCH"
+    }
+}```
+where we use the following standard layout values for
+```lua
+    -- buffer list window (blsw)
+    local blsw_width = math.floor(vim.o.columns * 0.75)
+    local blsw_height = math.floor(vim.o.lines * 0.75)
+    local blsw_row = 3
+    local blsw_col = math.floor((vim.o.columns - blsw_width)/2)
+    local blsw_prompt_row = blsw_row + blsw_height
+```
 
-### autocompletion
-
-Were we not to use prompt buffers, we could rely on better plugins for autocompletion like [nvim-cmp](https://github.com/hrsh7th/nvim-cmp). However, we are trying to mimic the autocompletion of the cmdline, and that in a minimalistic way.
-
-For autocompletion inside the prompt buffer, we are using `vim.fn.getcompletion`. To get the correct context, like `cmdline`, `option` or `file` we filter the prompt input. Based on the prefix, we decide for the context. For exmaple, when we have an empty prompt, by default, we set the context to `cmdline`, since we expect the user to enter a command. When the user starts typing and hits `<TAB>` (which will trigger the autocmpletion) we still set the context to `cmdline`. However, if the user hits `<TAB>` after having typed the first command, we will set the context as follows:
-
-* `set` -> `option`
-* `e, edit, vsplit, hsplit, source` -> `file` 
-
-We will update the prefix logic and decisions gradually as we go along.
-
-As said before, `<TAB>` will trigger the autocompletion. Once the suggestions are shown in a new window, we can choose between them with the standard keys: `<C-n>` for the next, `<C-p>` for the previous suggestion. We confirm a choice with `<CR>` (Enter)  To close the window of suggestions, use `<C-e>`.
+### Through the looking glass: cmdline
+Since autocompletion is too important, and to keep whatever is left of our sanity, we decided to let (neo)vim handle all autocompletion. 
+We thus simply mirror the command line. Typing in normal mode is thus magnified, so to speak. The advantage of it that we get the full power of vim's cmdline. The disadvantage is that one might need selective vision or at least selective focus (since we will see the input displayed and changed in two places as one). 
 
 ## Nuff Ced 
 
