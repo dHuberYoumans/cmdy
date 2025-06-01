@@ -23,6 +23,7 @@ M.prompt_symbols = {
     ["λ"] = true,
     ["/"] = true,
     ["❯"] = true,
+    [">"] = true,
 }
 M.defaults.cmdline = {
     prompt = "❯",
