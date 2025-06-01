@@ -25,8 +25,9 @@ In fact, there is no problem, which makes the solution so much nicer to discover
 ## WIP 
 
 * dynamic resizing of prompt buffers 
-* filter the buffer list by search input  
 * allow custom color configurations for the prompts
+* buffer ls: on <CR> navigate directly to the buffer, don't just close search prompt and jump into buffer ls (then need to hit <CR> again) -> bad UX
+* buffer ls: allow to enter buffer ls using arrow keys (see telescope etc)
 
 ## A bug's life 🐛
 
@@ -122,10 +123,11 @@ my_config = {
 Where, at the moment, we allow the following prompt symbols (which can be easily expanded in `config.lua`)
 ```lua
 config.prompt_symbols = {
-    ["❯"] = true,
     ["$"] = true,
     ["λ"] = true,
     ["/"] = true,
+    ["❯"] = true,
+    [">"] = true,
 }
 ```
 Our default options are 
