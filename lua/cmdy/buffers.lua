@@ -35,6 +35,10 @@ function M.create_buffer_window(opts)
     local output = vim.api.nvim_exec2("ls", { output = true }).output
     local lines = vim.split(output, "\n")
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.schedule(function()
+        vim.api.nvim_buf_set_option(buf, "readonly", true)
+        vim.api.nvim_buf_set_option(buf, "modifiable", false)
+    end)
 
     hl.setup_highlights()
     local win, border = window.create_window(buf, opts.display)
