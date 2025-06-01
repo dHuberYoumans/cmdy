@@ -7,4 +7,12 @@ function M.get_current_line()
     return line_content
 end
 
+function M.change_mutability(buf, mutable)
+    vim.schedule(function()
+        vim.api.nvim_buf_set_option(buf, "modifiable", mutable)
+        vim.api.nvim_buf_set_option(buf, "readonly", not mutable)
+    end)
+end
+
+
 return M
