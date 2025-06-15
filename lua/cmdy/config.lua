@@ -2,6 +2,10 @@ local M = {}
 
 M.defaults = {}
 
+function get_width() return math.floor(vim.o.columns * 0.75) end
+function get_col() return math.floor((vim.o.columns - get_width()) / 2) end
+function get_line() return math.floor(vim.o.lines / 2) end
+
 -- global
 local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
 local gap = 2
@@ -10,9 +14,9 @@ local offset_vertical = 3
 -- prompt defaults
 M.defaults.prompt = {
     title = "NORMAL MODE",
-    width = math.floor(vim.o.columns * 0.75),
-    line = math.floor(vim.o.lines / 2),
-    col = math.floor((vim.o.columns - math.floor(vim.o.columns * 0.75)) / 2),
+    width = get_width,
+    line = get_line,
+    col = get_col,
     height = 1,
     borderchars = borderchars,
 }
@@ -30,11 +34,13 @@ M.defaults.cmdline = {
 }
 
 -- buffer list window (blsw)
-local blsw_width = math.floor(vim.o.columns * 0.75)
-local blsw_height = math.floor(vim.o.lines * 0.75)
-local blsw_row = 3
-local blsw_col = math.floor((vim.o.columns - blsw_width)/2)
-local blsw_prompt_row = blsw_row + blsw_height
+local function blsw_width() return  math.floor(vim.o.columns * 0.75) end
+local function blsw_height() return math.floor(vim.o.lines * 0.75) end
+local function blsw_col() return math.floor((vim.o.columns - blsw_width())/2) end
+local function blsw_minheight() return blsw_height() - gap end
+local function blsw_maxheight() return blsw_height() - gap end
+local function blsw_row() return 3 end
+local function blsw_prompt_row() return blsw_row() + blsw_height() end
 
 M.defaults.buffers = {
     buffer_window = {
@@ -42,8 +48,8 @@ M.defaults.buffers = {
         line = blsw_row,
         col = blsw_col,
         width = blsw_width,
-        minheight = blsw_height - gap,
-        maxheight = blsw_height - gap,
+        minheight = blsw_minheight,
+        maxheight = blsw_maxheight,
         borderchars = borderchars,
     },
     buffer_window_prompt = {

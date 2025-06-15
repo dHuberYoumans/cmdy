@@ -1,6 +1,7 @@
 local popup = require('plenary.popup')
 local hl = require('cmdy.highlight')
 local config = require('cmdy.config')
+local utils = require('cmdy.utils')
 
 local M = {}
 
@@ -22,10 +23,10 @@ function M.create_prompt(buf, opts)
 
     local prompt_opts = {
         title = opts.title or config.options.prompt.title,
-        width = opts.width or config.options.prompt.width,
-        line = opts.row or config.options.prompt.line,
-        col = opts.col or config.options.prompt.col,
-        height = config.options.prompt.height,
+        width = utils.resolve(opts.width or config.options.prompt.width),
+        line = utils.resolve(opts.row or config.options.prompt.line),
+        col = utils.resolve(opts.col or config.options.prompt.col),
+        height = utils.resolve(config.options.prompt.height),
         borderchars = config.options.prompt.borderchars,
     }
 
@@ -59,7 +60,17 @@ function M.create_prompt(buf, opts)
 end
 
 function M.create_window(buf, opts)
-    local win, win_opts = popup.create(buf, opts)
+    local resolved_opts = {
+        title        = opts.title,
+        width        = utils.resolve(opts.width),
+        height       = utils.resolve(opts.height),
+        line         = utils.resolve(opts.line),
+        col          = utils.resolve(opts.col),
+        minheight    = utils.resolve(opts.minheight),
+        maxheight    = utils.resolve(opts.maxheight),
+        borderchars  = opts.borderchars,
+    }
+    local win, win_opts = popup.create(buf, resolved_opts)
     return win, win_opts.border.win_id
 end
 

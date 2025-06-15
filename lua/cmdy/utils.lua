@@ -14,5 +14,8 @@ function M.change_mutability(buf, mutable)
     end)
 end
 
+function M.resolve(val) 
+    return type(val) == 'function' and val() or val
+end
 
 return M
