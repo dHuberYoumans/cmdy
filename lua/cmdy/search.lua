@@ -87,11 +87,15 @@ function M.attach_callback(prompt_bufnr, target_win_id)
     vim.fn.prompt_setcallback(prompt_bufnr, function(input)
         M.clear_hls(target_win_id)
         vim.api.nvim_win_close(0, true)
-        vim.api.nvim_set_current_win(target_win_id)
-        vim.schedule(function()
-            vim.fn.setreg("/",input)
-            vim.fn.search(input)
-        end)
+        if target_win_id and vim.api.nvim_win_is_valid(target_win_id) then
+            vim.api.nvim_set_current_win(target_win_id)
+        end
+        if input and input~="" then
+            vim.schedule(function()
+                vim.fn.setreg("/",input)
+                vim.fn.search(input)
+            end)
+        end
     end)
 end
 

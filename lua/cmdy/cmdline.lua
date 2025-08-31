@@ -10,7 +10,7 @@ local state = {
 
 local src = {
  win = nil,
- buf = nil, 
+ buf = nil,
 }
 
 local prompt = config.options.cmdline.prompt
@@ -60,7 +60,7 @@ vim.api.nvim_create_autocmd("CmdlineEnter", {
 
 vim.api.nvim_create_autocmd("CmdlineChanged", {
     callback = function()
-        vim.schedule(function() 
+        vim.schedule(function()
             fn.update_cmdline_content()
         end)
     end,

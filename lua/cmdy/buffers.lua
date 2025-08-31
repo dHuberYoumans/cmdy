@@ -1,4 +1,3 @@
-local popup = require('plenary.popup')
 local utils = require('cmdy.utils')
 local window = require('cmdy.window')
 local hl = require('cmdy.highlight')
@@ -66,7 +65,7 @@ function M.create_buffer_window(opts)
     end, { buffer = buf })
 
    vim.keymap.set({"n"}, "/", function()
-       M.search_prompt(opts.prompt, buf)
+       M.search_prompt(opts.prompt, buf, win)
    end, { buffer = buf })
 
     return win, border, buf
@@ -90,9 +89,20 @@ function M.search_prompt(opts, list_buf, list_win)
     vim.cmd("startinsert")
 
     vim.keymap.set({"n", "i"}, "<ESC>", function()
+        local line = vim.fn.getline('.')
+        local pattern = vim.trim(line:sub(4))
         vim.cmd("stopinsert")
-        vim.api.nvim_win_close(0, true)
-        vim.api.nvim_set_current_win(list_win)
+        if vim.api.nvim_win_is_valid(0) then
+            vim.api.nvim_win_close(0, true)
+        end
+        if pattern == "" then
+            search.clear_hls(list_win)
+            if vim.api.nvim_win_is_valid(list_win) then
+                vim.api.nvim_win_close(list_win, true)
+            end
+        elseif vim.api.nvim_win_is_valid(list_win) then
+            vim.api.nvim_set_current_win(list_win)
+        end
     end, { buffer = buf })
 end
 
@@ -103,7 +113,7 @@ function update_buffer_list(prompt_buf, list_buf)
     local lines = vim.split(output, "\n")
     local filtered_lines = lines
     if input ~= "" then
-        filtered_lines = vim.tbl_filter(function(line) 
+        filtered_lines = vim.tbl_filter(function(line)
             return line:lower():find(input:lower(), 1, true)
         end, lines)
     end
