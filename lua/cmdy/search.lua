@@ -27,20 +27,22 @@ function M.focus_search()
     vim.cmd("startinsert")
 end
 
-function M.update_search_hl(bufnr, win, pattern)   
-    if last_match_id then
+function M.update_search_hl(win, pattern)
+    if last_match_id and win and vim.api.nvim_win_is_valid(win) then
         vim.api.nvim_win_call(win,function()
             vim.fn.matchdelete(last_match_id)
         end)
         last_match_id = nil
     end
 
-    if pattern == "" then
-        vim.api.nvim_win_call(win, function()
-            vim.fn.clearmatches()
-        end)
+    if not win or pattern == "" then
+        if win and vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_call(win, function()
+                vim.fn.clearmatches()
+            end)
+        end
         last_match_id = nil
-        return 
+        return
     end
 
     if not win then return end
@@ -67,13 +69,13 @@ function M.search_hl_live(prompt_bufnr, target_bufnr)
         on_lines = function()
             local input = vim.api.nvim_buf_get_lines(prompt_bufnr,0,1,false)[1] or ""
             input = input:gsub("^/ ", "")
-            M.update_search_hl(target_bufnr, target_win, input)
+            M.update_search_hl(target_win, input)
         end,
     })
 end
 
 function M.clear_hls(win)
-    if last_match_id then
+    if last_match_id and win and vim.api.nvim_win_is_valid(win) then
         vim.api.nvim_win_call(win, function()
             vim.fn.matchdelete(last_match_id)
         end)

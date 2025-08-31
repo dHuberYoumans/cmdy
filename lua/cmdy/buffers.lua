@@ -28,27 +28,27 @@ end
 function M.create_buffer_window(opts)
 
     local buf = vim.api.nvim_create_buf(false,true)
-    vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
-    vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
-    vim.api.nvim_buf_set_option(buf, "swapfile", false)
+    vim.api.nvim_set_option_value("buftype", "nofile", {buf = buf})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf = buf})
+    vim.api.nvim_set_option_value("swapfile", false, {buf = buf})
 
     local output = vim.api.nvim_exec2("ls", { output = true }).output
     local lines = vim.split(output, "\n")
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.schedule(function()
-        vim.api.nvim_buf_set_option(buf, "readonly", true)
-        vim.api.nvim_buf_set_option(buf, "modifiable", false)
+        vim.api.nvim_set_option_value("readonly", true, {buf = buf})
+        vim.api.nvim_set_option_value("modifiable", false, {buf = buf})
     end)
 
     hl.setup_highlights()
     local win, border = window.create_window(buf, opts.display)
 
-    vim.api.nvim_win_set_option(win,"cursorline",false)
+    vim.api.nvim_set_option_value("cursorline",false, {win = win})
 
     window.apply_highlights(win, border)
 
-    M.search_prompt(opts.prompt, buf)
-        
+    M.search_prompt(opts.prompt, buf, win)
+
     vim.api.nvim_create_autocmd("ColorScheme", {
         buffer = buf,
         callback = function()
@@ -59,20 +59,20 @@ function M.create_buffer_window(opts)
             end, 15)
         end
     })
- 
+
     vim.keymap.set({"n", "i"}, "<ESC>", function()
         vim.cmd("stopinsert")
         vim.api.nvim_win_close(0, true)
     end, { buffer = buf })
 
    vim.keymap.set({"n"}, "/", function()
-       M.search_prompt(opts.prompt,win, buf)
+       M.search_prompt(opts.prompt, buf)
    end, { buffer = buf })
 
-    return win, border, buf 
+    return win, border, buf
 end
 
-function M.search_prompt(opts, list_buf)
+function M.search_prompt(opts, list_buf, list_win)
     local buf = window.create_prompt_buffer("search_prompt")
 
     local win, border = window.create_prompt(buf, opts)
@@ -85,9 +85,15 @@ function M.search_prompt(opts, list_buf)
             update_buffer_list(buf, list_buf)
         end,
     })
-    search.attach_callback(buf, src_win)
-    search.search_hl_live(buf, src_buf)
+    search.attach_callback(buf, list_win)
+    search.search_hl_live(buf, list_buf)
     vim.cmd("startinsert")
+
+    vim.keymap.set({"n", "i"}, "<ESC>", function()
+        vim.cmd("stopinsert")
+        vim.api.nvim_win_close(0, true)
+        vim.api.nvim_set_current_win(list_win)
+    end, { buffer = buf })
 end
 
 function update_buffer_list(prompt_buf, list_buf)
@@ -96,16 +102,16 @@ function update_buffer_list(prompt_buf, list_buf)
     local output = vim.api.nvim_exec2("ls", { output = true }).output
     local lines = vim.split(output, "\n")
     local filtered_lines = lines
-    if input ~= "" then 
+    if input ~= "" then
         filtered_lines = vim.tbl_filter(function(line) 
             return line:lower():find(input:lower(), 1, true)
         end, lines)
     end
-    utils.change_mutability(list_buf, true) 
+    utils.change_mutability(list_buf, true)
     vim.schedule(function()
         vim.api.nvim_buf_set_lines(list_buf, 0, -1, false, filtered_lines)
     end)
-    utils.change_mutability(list_buf, false) 
+    utils.change_mutability(list_buf, false)
 end
 
 function M.attach_callback(target_win,list_buf)
